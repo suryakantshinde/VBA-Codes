@@ -58,3 +58,36 @@ Errormask:
 MsgBox "File Not Found", vbInformation
 Exit Sub
 End Sub
+
+'=============================================================================================================================================================
+'=============================================================================================================================================================
+'Summary:   Import all CSV files from a folder into a single sheet
+'           adding a field in column A listing the CSV filenames
+'=============================================================================================================================================================
+'=============================================================================================================================================================
+Dim wbCSV   As Workbook
+Dim wsMstr  As Worksheet:   Set wsMstr = ThisWorkbook.Sheets("BOQ")
+Dim fPath   As String:      fPath = "C:\ANZ-Presentation\CHBK Raw Data\BOQ\"    'path to CSV files, include the final \
+Dim fCSV    As String
+
+If MsgBox("Clear the existing Master BOQ Consolidate sheet before importing?", vbYesNo, "Clear?") _
+    = vbYes Then wsMstr.UsedRange.Clear
+
+Application.ScreenUpdating = False  'speed up macro
+
+fCSV = Dir(fPath & "*.csv")         'start the CSV file listing
+
+    Do While Len(fCSV) > 0
+      'open a CSV file
+        Set wbCSV = Workbooks.Open(fPath & fCSV)
+      'insert col A and add CSV name
+        Columns(1).Insert xlShiftToRight
+        Columns(1).SpecialCells(xlBlanks).Value = ActiveSheet.name
+      'copy date into master sheet and close source file
+        ActiveSheet.UsedRange.Copy wsMstr.Range("A" & Rows.Count).End(xlUp).Offset(1)
+        wbCSV.Close False
+      'ready next CSV
+        fCSV = Dir
+    Loop
+Application.ScreenUpdating = True
+
