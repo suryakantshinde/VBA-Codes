@@ -114,3 +114,137 @@ Conn.Open sconnect
 Conn.Close
 
 End Sub
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+''************************************************************************ Message Box Example
+Sub MessageBoxExample()
+    Dim iRet As Integer
+    Dim strPrompt As String
+    Dim strTitle As String
+ 
+    ' Promt
+    strPrompt = "Have you coppied current month MIS again in Sheet Current_Month_MIS?"
+ 
+    ' Dialog's Title
+    strTitle = "My Tite"
+ 
+    'Display MessageBox
+    iRet = MsgBox(strPrompt, vbYesNo, strTitle)
+ 
+    ' Check pressed button
+    If iRet = vbNo Then
+        MsgBox "Please Copy the current Month MIS in Sheet Current_Month_MIS then continue !"
+    Else
+        MsgBox "Yes!"
+    End If
+   
+End Sub
+
+'----------------------------------------------------------------------'----------------------------------------------------------------------
+'Macro Message Box -  msgbox multiple lines
+'----------------------------------------------------------------------'----------------------------------------------------------------------
+        MsgBox "Cell AA1 does not contain CB Date." & vbCrLf & "Please change the data in right format." & vbCrLf & "Thank you", vbCritical
+'----------------------------------------------------------------------'----------------------------------------------------------------------
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+''************************************************************************ Date Filter
+Sub Data_Date_Filter()
+     
+    Dim sDate As Variant, eDate As Variant
+    
+    Sheets("Sheet1").Select
+    Columns("A:A").Select
+    Selection.NumberFormat = "mm/dd/yyyy"
+     
+    sDate = Application.InputBox("Enter the starting date as mm/dd/yyyy", Type:=1 + 2)
+    eDate = Application.InputBox("Enter the Ending date as mm/dd/yyyy", Type:=1 + 2)
+     
+    
+    Application.ScreenUpdating = False
+     
+  Sheets("RawData_MAESTRO_PG").Cells.ClearContents
+     
+    With Sheets("SOURCE")
+        .AutoFilterMode = False
+        .Range("AA1").CurrentRegion.AutoFilter Field:=27, Criteria1:=">=" & sDate, Operator:=xlAnd, Criteria2:="<=" & eDate
+        .Range("AA1").CurrentRegion.SpecialCells(xlCellTypeVisible).Copy Sheets("RawData_MAESTRO_PG").Range("A1")
+    End With
+     
+    Application.CutCopyMode = False
+    Application.ScreenUpdating = True
+     
+End Sub
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"Select range at last row in column
+Range(Selection, Selection.End(xlToRight)).Select
+Range("A" & Rows.Count).End(xlUp).Select
+Range("A2:A" & Lastrow).Select
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Last blank Row in column = Worksheets("Sheet1").Range("A1").End(xlDown).Row + 1
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Select the last blank row 
+Sub Select_Last_Row()
+'Step 1:  Declare Your Variables.
+    Dim LastBlankRow As Long
+'Step 2:  Capture the last used row number.
+    LastBlankRow = Cells(Rows.Count, 1).End(xlUp).Row + 1
+'Step 3:  Select the next row down
+    Cells(LastBlankRow, 1).Select
+End Sub
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ActiveCell.copy
+ActiveCell.Offset(0, -1).Select
+Selection.End(xlDown).Select
+ActiveCell.Offset(0, 1).Select
+Range(Selection, Selection.End(xlUp)).Select
+ActiveSheet.Paste
+Application.CutCopyMode = False
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
+lastRow = Range("A" & Rows.Count).End(xlUp).Row
+Range("G2").AutoFill Destination:=Range("G2:G" & lastRow)
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Select entire Column till last row VBA
+Dim LastRow As Long
+With Worksheets("ScrapData")
+  LastRow = .Cells(Rows.Count, "E").End(xlUp).row
+  .range("E2:E" & LastRow).Select
+End With
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PasteSpecial_All_Columns
+Lastrow = Range("C" & Rows.Count).End(xlUp).Row '...DONT CHAGE "C"
+Range("G2:G" & Lastrow).Select
+Sub PasteSpecial_All_Columns()
+Application.CutCopyMode = False
+Selection.Copy
+Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+:=False, Transpose:=False
+Application.CutCopyMode = True
+End Sub
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+''************************************************************************Rearrange Sheets
+Sub RearrangeSheets()
+    Dim ws As Worksheet
+    Dim orderList() As Variant
+    Dim i As Long
+    
+    ' Define the custom order list
+    orderList = Array("D-Sheet", "B-Sheet", "F-Sheet", "A-Sheet", "C-Sheet")
+    
+    ' Disable screen updating to improve performance
+    Application.ScreenUpdating = False
+    
+    ' Loop through each sheet name in the custom order list
+    For i = LBound(orderList) To UBound(orderList)
+        ' Find the sheet with the corresponding name
+       ' On Error Resume Next
+        Set ws = Worksheets(orderList(i))
+        On Error GoTo 0
+        
+        ' Move the sheet to the desired position
+        If Not ws Is Nothing Then
+            ws.Move Before:=Worksheets(1)
+        End If
+    Next i
+    
+    ' Enable screen updating again
+    Application.ScreenUpdating = True
+End Sub
