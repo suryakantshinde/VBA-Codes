@@ -1,0 +1,84 @@
+Sub Create_Label_Start()
+    Dim wsSrc As Worksheet, wsDest As Worksheet
+    Dim lastRow As Long, destRow As Long
+    Dim i As Long
+    Dim widthVal As Double, heightVal As Double, depthVal As Double
+    Dim groove As String
+    Dim clientName As String, clientAddress As String
+    
+    Set wsSrc = ThisWorkbook.Sheets("RawData")
+    Set wsDest = ThisWorkbook.Sheets("Labels")
+    
+    ' Get Client Name and Address from Sheet1
+    clientName = wsSrc.Range("R1").Value ' Adjust if client name is in a different cell
+    clientAddress = wsSrc.Range("R2").Value ' Adjust if address is in a different cell
+    
+    wsDest.Cells.Clear
+    destRow = 1
+    
+    lastRow = wsSrc.Cells(wsSrc.Rows.Count, "A").End(xlUp).Row
+    
+    For i = 7 To lastRow
+        widthVal = wsSrc.Cells(i, 1).Value
+        heightVal = wsSrc.Cells(i, 2).Value
+        depthVal = wsSrc.Cells(i, 3).Value
+        groove = wsSrc.Cells(i, 4).Value
+        
+        If widthVal > 0 And heightVal > 0 And depthVal > 0 Then
+            ' Top/Bottom (2 parts)
+            Call WriteBlock(wsDest, destRow, clientName, clientAddress, widthVal, heightVal, depthVal, "Top/Bottom", widthVal - 38, depthVal, "1/2", groove)
+            destRow = destRow + 8
+            Call WriteBlock(wsDest, destRow, clientName, clientAddress, widthVal, heightVal, depthVal, "Top/Bottom", widthVal - 38, depthVal, "2/2", groove)
+            destRow = destRow + 8
+            
+            ' Sides (2 parts)
+            Call WriteBlock(wsDest, destRow, clientName, clientAddress, widthVal, heightVal, depthVal, "Side", heightVal, depthVal, "1/2", groove)
+            destRow = destRow + 8
+            Call WriteBlock(wsDest, destRow, clientName, clientAddress, widthVal, heightVal, depthVal, "Side", heightVal, depthVal, "2/2", groove)
+            destRow = destRow + 8
+            
+            ' Shelf
+            Call WriteBlock(wsDest, destRow, clientName, clientAddress, widthVal, heightVal, depthVal, "Shelf", widthVal - 42, depthVal - 50, "1/1", "")
+            destRow = destRow + 8
+            
+            ' Cabinet Vertical
+            Call WriteBlock(wsDest, destRow, clientName, clientAddress, widthVal, heightVal, depthVal, "Cabinet Vertical", heightVal - 19, depthVal - 19, "1/1", "")
+            destRow = destRow + 8
+            
+            ' 6MM
+            Call WriteBlock(wsDest, destRow, clientName, clientAddress, widthVal, heightVal, depthVal, "6MM", widthVal - 19, heightVal - 19, "1/1", "")
+            destRow = destRow + 8
+            
+            ' Mixed Items
+            Call WriteBlock(wsDest, destRow, clientName, clientAddress, widthVal, heightVal, depthVal, "Mixed Items", "", "", "1/1", "")
+            destRow = destRow + 8
+        End If
+        
+    Next i
+    
+    MsgBox "Lables Generated Sucessfully"
+End Sub
+
+Sub WriteBlock(ws As Worksheet, ByVal startRow As Long, ByVal clientName As String, ByVal clientAddress As String, _
+               ByVal W As Double, ByVal H As Double, ByVal D As Double, ByVal partDesc As String, _
+               ByVal partW As Variant, ByVal partD As Variant, ByVal qty As String, ByVal groove As String)
+    ws.Cells(startRow, 1).Value = "CLIENT-NAME"
+    ws.Cells(startRow, 2).Value = clientName
+    ws.Cells(startRow + 1, 1).Value = "ADD"
+    ws.Cells(startRow + 1, 2).Value = clientAddress
+    ws.Cells(startRow + 2, 1).Value = "Cabinet Size"
+    ws.Cells(startRow + 2, 2).Value = W & "W*" & H & "H*" & D & "D"
+    ws.Cells(startRow + 3, 1).Value = "Part Description"
+    ws.Cells(startRow + 3, 2).Value = partDesc
+    ws.Cells(startRow + 4, 1).Value = "Part Size"
+    If partW <> "" And partD <> "" Then
+        ws.Cells(startRow + 4, 2).Value = partW & "*" & partD
+    Else
+        ws.Cells(startRow + 4, 2).Value = ""
+    End If
+    ws.Cells(startRow + 5, 1).Value = "Part Qty"
+    ws.Cells(startRow + 5, 2).Value = "'" & qty
+    ws.Cells(startRow + 6, 1).Value = "Grooving"
+    ws.Cells(startRow + 6, 2).Value = IIf(groove = "Y", "Y", "N")
+End Sub
+
