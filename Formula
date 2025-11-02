@@ -1,0 +1,104 @@
+Sub Calculation_Code_Start()
+Calculate
+CABINETVERTICALS
+MsgBox "Calculation Done Sucessfully"
+End Sub
+
+
+Sub Calculate()
+    Dim ws As Worksheet
+    Dim i As Long
+    Dim lastCol As Long
+    Dim col As Long
+    Dim lastRow As Long
+
+    On Error GoTo ErrorHandler
+    Set ws = Sheets("RawData")
+    i = 7
+
+    ' Apply formulas
+    Do While ws.Cells(i, 1).Value <> "" ' Column D as reference
+        ' TOP & BOTTOM - WIDTH - Column H
+        ws.Cells(i, 8).FormulaR1C1 = "=RC[-7]-38"
+        ' TOP & BOTTOM - DEPTH - Column I
+        ws.Cells(i, 9).FormulaR1C1 = "=RC[-6]"
+
+        ' 2 - SIDES - WIDTH - Column N
+        ws.Cells(i, 14).FormulaR1C1 = "=RC[-12]"
+        ' 2 - SIDES - DEPTH - Column O
+        ws.Cells(i, 15).FormulaR1C1 = "=RC[-12]"
+
+        ' SHELFS - WIDTH - Column T
+        ws.Cells(i, 20).FormulaR1C1 = "=RC[-19]-42"
+        ' SHELFS - DEPTH - Column U
+        ws.Cells(i, 21).FormulaR1C1 = "=RC[-18]-50"
+
+        ' 6MM - WIDTH - Column AD
+        ws.Cells(i, 30).FormulaR1C1 = "=RC[-29]-19"
+        ' 6MM - DEPTH - Column AE
+        ws.Cells(i, 31).FormulaR1C1 = "=RC[-29]-19"
+
+        i = i + 1
+    Loop
+
+    lastRow = i - 1
+
+    ' Paste special (values only)
+    ws.Range("H7:H" & lastRow).Value = ws.Range("H7:H" & lastRow).Value
+    ws.Range("I7:I" & lastRow).Value = ws.Range("I7:I" & lastRow).Value
+    ws.Range("N7:N" & lastRow).Value = ws.Range("N7:N" & lastRow).Value
+    ws.Range("O7:O" & lastRow).Value = ws.Range("O7:O" & lastRow).Value
+    ws.Range("T7:T" & lastRow).Value = ws.Range("T7:T" & lastRow).Value
+    ws.Range("U7:U" & lastRow).Value = ws.Range("U7:U" & lastRow).Value
+    ws.Range("AD7:AD" & lastRow).Value = ws.Range("AD7:AD" & lastRow).Value
+    ws.Range("AE7:AE" & lastRow).Value = ws.Range("AE7:AE" & lastRow).Value
+
+    ' Auto-fit all used columns
+    lastCol = ws.Cells(7, ws.Columns.Count).End(xlToLeft).Column
+    For col = 1 To lastCol
+        ws.Columns(col).AutoFit
+    Next col
+
+    MsgBox "Completed Successfully!", vbInformation
+    Exit Sub
+
+ErrorHandler:
+    MsgBox "An error occurred: " & Err.Description, vbCritical
+End Sub
+
+
+
+Sub CABINETVERTICALS()
+
+    Dim ws As Worksheet
+    Dim lastCol As Long
+    Dim cell As Range
+    Dim foundY As Boolean
+    Dim i As Long
+
+    Set ws = ThisWorkbook.Sheets("RawData")
+    i = 7 ' Start from row 7
+
+    Do While ws.Cells(i, 2).Value <> "" ' Loop until Column B is blank
+        lastCol = ws.Cells(i, ws.Columns.Count).End(xlToLeft).Column
+        foundY = False
+
+        For Each cell In ws.Range(ws.Cells(i, 4), ws.Cells(i, lastCol)) ' From column E to last used column
+            If UCase(cell.Value) = "Y" Then
+                ' Write formulas
+                ws.Cells(i, 25).FormulaR1C1 = "=RC[-23]-38"  ' Column Z
+                ws.Cells(i, 26).FormulaR1C1 = "=RC[-23]-25"  ' Column AA
+
+                ' Paste formulas as values
+                ws.Cells(i, 25).Value = ws.Cells(i, 25).Value
+                ws.Cells(i, 26).Value = ws.Cells(i, 26).Value
+
+                foundY = True
+                Exit For
+            End If
+        Next cell
+
+        i = i + 1
+    Loop
+End Sub
+
